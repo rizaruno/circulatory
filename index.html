@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Body's Algorithm — Circulatory System × Computational Thinking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16213E;
+    --ink-soft:#48557A;
+    --paper:#F6F1E4;
+    --paper-alt:#EDE4CE;
+    --card:#FFFDF7;
+    --arterial:#B4392C;
+    --arterial-soft:#EAC4BC;
+    --arterial-deep:#8E2A20;
+    --venous:#1E7A72;
+    --venous-soft:#C6DFDA;
+    --venous-deep:#155650;
+    --amber:#DB9A34;
+    --success:#3F8F5F;
+    --line:#DBCFAE;
+    --radius:14px;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    line-height:1.1;
+    margin:0 0 .4em;
+    color:var(--ink);
+  }
+  em{font-style:italic; color:var(--arterial-deep);}
+  p{margin:0 0 1em;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+  a{color:inherit;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:3px solid var(--amber); outline-offset:3px;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(246,241,228,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:var(--maxw); margin:0 auto; padding:12px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .brand{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.78rem; letter-spacing:.06em; font-weight:600;
+    display:flex; align-items:center; gap:8px; white-space:nowrap;
+  }
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--arterial); animation:pulse-dot 1.1s infinite;}
+  .pillar-nav{display:flex; gap:4px; flex-wrap:wrap;}
+  .pillar-nav button{
+    background:none; border:1px solid transparent; border-radius:20px;
+    padding:6px 12px; font-size:.75rem; font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-soft); transition:.15s;
+  }
+  .pillar-nav button.active, .pillar-nav button:hover{
+    border-color:var(--ink); color:var(--ink); background:var(--card);
+  }
+  @media (max-width:760px){ .pillar-nav{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{padding:64px 0 40px;}
+  .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center;}
+  @media (max-width:820px){ .hero-grid{grid-template-columns:1fr;} }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; letter-spacing:.1em;
+    color:var(--venous-deep); text-transform:uppercase; font-weight:600; margin-bottom:14px;
+    display:inline-block;
+  }
+  .hero h1{font-size:clamp(2.4rem,5.5vw,3.6rem);}
+  .hero .lede{font-size:1.08rem; color:var(--ink-soft); max-width:46ch;}
+  .hero-visual{display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .mini-chip{width:180px; animation:pulse-scale 1.6s infinite;}
+  @media (prefers-reduced-motion:reduce){ .mini-chip, .brand .dot{animation:none;} }
+  .bpm-readout{
+    font-family:'IBM Plex Mono', monospace; font-size:.85rem; color:var(--ink-soft);
+    background:var(--card); border:1px solid var(--line); padding:6px 14px; border-radius:20px;
+  }
+  .bpm-readout strong{color:var(--arterial-deep); font-size:1.05rem;}
+  @keyframes pulse-scale{
+    0%{transform:scale(1);} 15%{transform:scale(1.07);} 30%{transform:scale(1);}
+    45%{transform:scale(1.03);} 60%{transform:scale(1);} 100%{transform:scale(1);}
+  }
+  @keyframes pulse-dot{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  /* ---------- FRAMEWORK CARDS ---------- */
+  .framework{padding:20px 0 64px;}
+  .framework-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:820px){ .framework-grid{grid-template-columns:repeat(2,1fr);} }
+  .pillar-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; text-align:left; transition:.2s; display:flex; flex-direction:column; gap:10px;
+  }
+  .pillar-card:hover{transform:translateY(-3px); border-color:var(--ink);}
+  .pillar-num{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--amber); font-weight:600;}
+  .pillar-card h3{font-size:1.05rem; margin:0;}
+  .pillar-card p{font-size:.88rem; color:var(--ink-soft); margin:0;}
+
+  /* ---------- MODULE COMMON ---------- */
+  .module{padding:72px 0; border-top:1px solid var(--line);}
+  .module h2{font-size:clamp(1.7rem,3.4vw,2.3rem); max-width:20ch;}
+  .module .intro{max-width:64ch; color:var(--ink-soft); font-size:1.02rem;}
+  .module-decomp{background:var(--paper-alt);}
+  .module-abstract{background:var(--paper-alt);}
+
+  /* ---------- DIAGRAM ---------- */
+  .diagram-layout{display:grid; grid-template-columns:1.15fr .85fr; gap:32px; align-items:start; margin-top:28px;}
+  @media (max-width:820px){ .diagram-layout{grid-template-columns:1fr;} }
+  .diagram-wrap{position:relative; width:100%; aspect-ratio:400/520; max-width:420px; margin:0 auto;}
+  .diagram-wrap svg{position:absolute; inset:0; width:100%; height:100%;}
+  .flow-venous{stroke:var(--venous); fill:none; stroke-width:7; stroke-linecap:round;}
+  .flow-arterial{stroke:var(--arterial); fill:none; stroke-width:7; stroke-linecap:round;}
+  .flow-anim{stroke-dasharray:2 14; animation:flow 1.1s linear infinite;}
+  @media (prefers-reduced-motion:reduce){ .flow-anim{animation:none;} }
+  @keyframes flow{ to{ stroke-dashoffset:-32; } }
+  .chip-box{fill:var(--card); stroke:var(--ink); stroke-width:2.5;}
+  .chamber-ra,.chamber-rv{fill:var(--venous-soft); stroke:var(--venous-deep); stroke-width:1.5;}
+  .chamber-la,.chamber-lv{fill:var(--arterial-soft); stroke:var(--arterial-deep); stroke-width:1.5;}
+  .organ-box{fill:var(--paper); stroke:var(--ink); stroke-width:2;}
+  .svg-label{font-family:'IBM Plex Mono',monospace; font-size:13px; fill:var(--ink); text-anchor:middle; font-weight:600;}
+  .svg-label-sm{font-family:'IBM Plex Mono',monospace; font-size:10px; fill:var(--ink-soft); text-anchor:middle;}
+
+  .hotspot{
+    position:absolute; width:34px; height:34px; margin-left:-17px; margin-top:-17px;
+    border-radius:50%; border:2px solid var(--amber); background:rgba(219,154,52,.18);
+    color:var(--ink); font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+    animation:ring-pulse 2.2s infinite;
+  }
+  @media (prefers-reduced-motion:reduce){ .hotspot{animation:none;} }
+  .hotspot:hover, .hotspot:focus-visible{background:var(--amber); color:var(--card);}
+  .hotspot.active{background:var(--ink); border-color:var(--ink); color:var(--card);}
+  @keyframes ring-pulse{
+    0%{box-shadow:0 0 0 0 rgba(219,154,52,.45);}
+    70%{box-shadow:0 0 0 10px rgba(219,154,52,0);}
+    100%{box-shadow:0 0 0 0 rgba(219,154,52,0);}
+  }
+
+  .info-panel{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px; min-height:220px;
+  }
+  .info-panel .placeholder{color:var(--ink-soft); font-style:italic; font-size:.92rem;}
+  .info-panel h4{margin:0 0 8px; font-family:'IBM Plex Mono',monospace; font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--venous-deep);}
+  .info-panel .title{font-family:'Fraunces',serif; font-size:1.4rem; font-weight:700; margin-bottom:10px;}
+  .info-panel p{font-size:.94rem; color:var(--ink-soft); margin-bottom:0;}
+
+  /* ---------- FLIP CARDS ---------- */
+  .flip-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:36px;}
+  @media (max-width:700px){ .flip-grid{grid-template-columns:repeat(2,1fr);} }
+  .flip-card{perspective:1000px; height:190px;}
+  .flip-card button{
+    width:100%; height:100%; background:none; border:none; padding:0; position:relative;
+  }
+  .flip-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;
+  }
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius);
+    border:1px solid var(--line); display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:14px; text-align:center;
+  }
+  .flip-front{background:var(--card);}
+  .flip-front .fc-name{font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; margin-top:8px;}
+  .flip-front .fc-tag{font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--amber); text-transform:uppercase;}
+  .flip-back{background:var(--ink); color:var(--paper); transform:rotateY(180deg); font-size:.82rem;}
+  .fc-swatch{width:34px; height:34px; border-radius:50%;}
+
+  /* ---------- LOOP BUILDER ---------- */
+  .loop-cols{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:32px;}
+  @media (max-width:700px){ .loop-cols{grid-template-columns:1fr;} }
+  .loop-col{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
+  .loop-col h4{
+    font-family:'IBM Plex Mono',monospace; font-size:.82rem; text-transform:uppercase; letter-spacing:.05em;
+    margin:0 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .loop-col.pulmonary h4{color:var(--venous-deep);}
+  .loop-col.systemic h4{color:var(--arterial-deep);}
+  .slot{
+    min-height:56px; border:2px dashed var(--line); border-radius:10px; margin-bottom:10px;
+    display:flex; align-items:center; padding:8px 12px; font-size:.86rem; color:var(--ink-soft);
+    background:var(--paper);
+  }
+  .slot .slot-num{font-family:'IBM Plex Mono',monospace; font-weight:700; margin-right:10px; color:var(--ink);}
+  .slot.filled{border-style:solid; color:var(--ink); background:var(--card); cursor:pointer;}
+  .slot.correct{border-color:var(--success); background:#EAF4EC;}
+  .slot.wrong{border-color:var(--arterial); background:#FBEAE7;}
+  .chip-pool{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; padding:18px;
+    background:var(--paper-alt); border-radius:var(--radius);
+  }
+  .step-chip{
+    background:var(--card); border:1px solid var(--ink); border-radius:8px; padding:9px 14px;
+    font-size:.85rem; max-width:280px; text-align:left;
+  }
+  .step-chip.selected{background:var(--amber); border-color:var(--amber); color:var(--card);}
+  .step-chip[hidden]{display:none;}
+  .loop-actions{display:flex; align-items:center; gap:14px; margin-top:22px; flex-wrap:wrap;}
+  .btn{
+    background:var(--ink); color:var(--paper); border:none; border-radius:24px;
+    padding:11px 24px; font-weight:600; font-size:.9rem; transition:.15s;
+  }
+  .btn:hover{background:var(--arterial-deep);}
+  .feedback-msg{font-size:.88rem; font-weight:600;}
+  .feedback-msg.ok{color:var(--success);}
+  .feedback-msg.notyet{color:var(--ink-soft); font-weight:400;}
+  .code-block{
+    margin-top:26px; background:var(--ink); color:#E9F5F0; border-radius:var(--radius);
+    padding:20px 24px; font-family:'IBM Plex Mono',monospace; font-size:.88rem; line-height:1.7;
+    opacity:0; max-height:0; overflow:hidden; transition:opacity .4s;
+  }
+  .code-block.show{opacity:1; max-height:200px; padding:20px 24px;}
+  .code-block .c1{color:var(--amber);}
+  .code-block .c2{color:#7FD8CB;}
+  .code-block .c3{color:#E89A8E;}
+  .code-block .cur{display:inline-block; width:8px; height:1em; background:#E9F5F0; vertical-align:text-bottom; animation:blink 1s step-end infinite;}
+  @keyframes blink{ 50%{opacity:0;} }
+
+  /* ---------- PATTERN MODULE ---------- */
+  .preset-row{display:flex; gap:10px; margin-top:28px; flex-wrap:wrap;}
+  .preset-btn{
+    border:1px solid var(--ink); background:var(--card); border-radius:20px;
+    padding:9px 18px; font-size:.85rem; font-weight:600;
+  }
+  .preset-btn.active{background:var(--ink); color:var(--paper);}
+  .wave-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; margin-top:20px;
+  }
+  .wave-card svg{width:100%; height:auto; display:block;}
+  .wave-path{fill:none; stroke:var(--arterial); stroke-width:3; stroke-linejoin:round; stroke-linecap:round;}
+  .wave-meta{display:flex; justify-content:space-between; align-items:baseline; margin-top:10px; flex-wrap:wrap; gap:8px;}
+  .wave-bpm{font-family:'IBM Plex Mono',monospace; font-size:1.6rem; font-weight:700; color:var(--arterial-deep);}
+  .wave-label{font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--ink-soft); text-transform:uppercase;}
+  .pattern-quiz{
+    margin-top:32px; background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); padding:22px;
+  }
+  .pattern-quiz .q{font-weight:600; margin-bottom:14px;}
+  .opt-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .opt-btn{
+    border:1px solid var(--line); background:var(--paper); border-radius:10px; padding:10px 16px; font-size:.86rem;
+  }
+  .opt-btn.correct{background:#EAF4EC; border-color:var(--success);}
+  .opt-btn.incorrect{background:#FBEAE7; border-color:var(--arterial);}
+  .pq-feedback{margin-top:14px; font-size:.88rem; min-height:1.2em;}
+
+  /* ---------- ABSTRACTION ---------- */
+  .abstract-layout{display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start; margin-top:28px;}
+  @media (max-width:820px){ .abstract-layout{grid-template-columns:1fr;} }
+  .subway-note{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px;
+  }
+  .subway-note svg{width:100%; height:auto; margin-top:10px;}
+  .toggle-row{display:flex; align-items:center; gap:12px; margin-top:24px;}
+  .switch{
+    position:relative; width:56px; height:30px; background:var(--ink); border-radius:20px; border:none; padding:0;
+  }
+  .switch .knob{
+    position:absolute; top:3px; left:3px; width:24px; height:24px; background:var(--paper); border-radius:50%;
+    transition:.2s;
+  }
+  .switch.on .knob{left:29px; background:var(--amber);}
+  .toggle-label{font-family:'IBM Plex Mono',monospace; font-size:.8rem;}
+  .abs-diagram-wrap{
+    position:relative; width:100%; max-width:420px; margin:20px auto 0;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px;
+  }
+  .abs-diagram-wrap svg{width:100%; height:auto; display:block;}
+  .abs-caption{font-size:.85rem; color:var(--ink-soft); text-align:center; margin-top:12px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px; margin-top:16px;
+  }
+  .quiz-q{font-weight:600; margin-bottom:12px;}
+  .quiz-num{color:var(--amber); font-family:'IBM Plex Mono',monospace; margin-right:6px;}
+  .quiz-opts{display:flex; flex-direction:column; gap:8px;}
+  .quiz-opt{
+    text-align:left; border:1px solid var(--line); background:var(--paper); border-radius:8px;
+    padding:11px 14px; font-size:.9rem;
+  }
+  .quiz-opt.selected{border-color:var(--ink); background:var(--paper-alt); font-weight:600;}
+  .quiz-opt.correct{border-color:var(--success); background:#EAF4EC;}
+  .quiz-opt.incorrect{border-color:var(--arterial); background:#FBEAE7;}
+  .quiz-opt:disabled{cursor:default;}
+  .result-card{
+    margin-top:24px; padding:26px; border-radius:var(--radius); background:var(--ink); color:var(--paper);
+    text-align:center; display:none;
+  }
+  .result-card.show{display:block;}
+  .result-card .score{font-family:'Fraunces',serif; font-size:2.4rem; font-weight:700;}
+  .result-card p{color:#D8D2C1;}
+  .btn-outline{
+    background:none; border:1.5px solid var(--paper); color:var(--paper); border-radius:24px;
+    padding:9px 20px; font-weight:600; font-size:.85rem; margin-top:8px;
+  }
+
+  footer{padding:44px 0; text-align:center; color:var(--ink-soft); font-size:.82rem; border-top:1px solid var(--line);}
+  footer .mono{display:block; margin-top:4px; font-size:.72rem;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span> SCIENCE LAB · GRADE 6</div>
+    <nav class="pillar-nav" id="pillarNav">
+      <button data-target="decomposition">01 Decomposition</button>
+      <button data-target="algorithm">02 Algorithm</button>
+      <button data-target="pattern">03 Patterns</button>
+      <button data-target="abstraction">04 Abstraction</button>
+      <button data-target="challenge">Challenge</button>
+    </nav>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Circulatory System × Computational Thinking</span>
+      <h1>Every heartbeat<br>is a <em>loop</em>.</h1>
+      <p class="lede">Your circulatory system moves blood through your body about 100,000 times a day — nonstop, in exactly the same order, every single time. That's not just biology. It's an algorithm. Explore it the way a computer scientist would: by breaking it down, spotting patterns, simplifying the map, and tracing the steps.</p>
+    </div>
+    <div class="hero-visual">
+      <svg class="mini-chip" viewBox="0 0 120 120" aria-hidden="true">
+        <rect x="20" y="20" width="80" height="80" rx="14" fill="#FFFDF7" stroke="#16213E" stroke-width="3"/>
+        <rect x="26" y="26" width="32" height="32" rx="5" fill="#C6DFDA"/>
+        <rect x="62" y="26" width="32" height="32" rx="5" fill="#EAC4BC"/>
+        <rect x="26" y="62" width="32" height="32" rx="5" fill="#C6DFDA"/>
+        <rect x="62" y="62" width="32" height="32" rx="5" fill="#EAC4BC"/>
+        <line x1="60" y1="10" x2="60" y2="20" stroke="#16213E" stroke-width="3"/>
+        <line x1="60" y1="100" x2="60" y2="110" stroke="#16213E" stroke-width="3"/>
+        <line x1="10" y1="60" x2="20" y2="60" stroke="#16213E" stroke-width="3"/>
+        <line x1="100" y1="60" x2="110" y2="60" stroke="#16213E" stroke-width="3"/>
+      </svg>
+      <div class="bpm-readout"><strong>72</strong> BPM · resting rate</div>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMEWORK -->
+<section class="framework">
+  <div class="wrap framework-grid">
+    <button class="pillar-card" data-target="decomposition">
+      <span class="pillar-num">PILLAR 01</span>
+      <h3>Decomposition</h3>
+      <p>Breaking a big, complicated system into smaller parts you can understand one at a time.</p>
+    </button>
+    <button class="pillar-card" data-target="algorithm">
+      <span class="pillar-num">PILLAR 02</span>
+      <h3>Algorithms</h3>
+      <p>Writing an exact, ordered sequence of steps that always solves the problem the same way.</p>
+    </button>
+    <button class="pillar-card" data-target="pattern">
+      <span class="pillar-num">PILLAR 03</span>
+      <h3>Pattern Recognition</h3>
+      <p>Comparing data to spot repeats, trends, and differences that tell you something useful.</p>
+    </button>
+    <button class="pillar-card" data-target="abstraction">
+      <span class="pillar-num">PILLAR 04</span>
+      <h3>Abstraction</h3>
+      <p>Hiding unnecessary detail so only the information you actually need is left.</p>
+    </button>
+  </div>
+</section>
+
+<!-- MODULE 1: DECOMPOSITION -->
+<section class="module module-decomp" id="decomposition">
+  <div class="wrap">
+    <span class="eyebrow">Pillar 01 · Decomposition</span>
+    <h2>Breaking down the system</h2>
+    <p class="intro">A programmer breaks a big app into smaller functions before writing any code. Biologists do the same thing with the body: the circulatory system is really three smaller systems working together — the <strong>heart</strong> (the pump), the <strong>blood vessels</strong> (the pathways), and the <strong>blood</strong> itself (what actually moves). Tap the glowing markers to zoom into each part of the pump.</p>
+
+    <div class="diagram-layout">
+      <div class="diagram-wrap" id="diagramWrap">
+        <svg viewBox="0 0 400 520" aria-hidden="true">
+          <rect class="organ-box" x="110" y="15" width="180" height="55" rx="12"/>
+          <text class="svg-label" x="200" y="47">LUNGS</text>
+
+          <rect class="organ-box" x="110" y="445" width="180" height="55" rx="12"/>
+          <text class="svg-label" x="200" y="477">BODY</text>
+
+          <path class="flow-venous flow-anim" d="M133,291 C40,291 40,42 110,42"/>
+          <path class="flow-arterial flow-anim" d="M290,42 C360,42 360,229 267,229"/>
+          <path class="flow-venous flow-anim" d="M110,468 C30,468 30,227 133,227"/>
+          <path class="flow-arterial flow-anim" d="M267,291 C370,291 370,468 290,468"/>
+
+          <rect class="chip-box" x="125" y="190" width="150" height="140" rx="18"/>
+          <rect class="chamber-ra" x="133" y="198" width="64" height="58" rx="8"/>
+          <text class="svg-label" x="165" y="231">RA</text>
+          <rect class="chamber-la" x="203" y="198" width="64" height="58" rx="8"/>
+          <text class="svg-label" x="235" y="231">LA</text>
+          <rect class="chamber-rv" x="133" y="260" width="64" height="62" rx="8"/>
+          <text class="svg-label" x="165" y="295">RV</text>
+          <rect class="chamber-lv" x="203" y="260" width="64" height="62" rx="8"/>
+          <text class="svg-label" x="235" y="295">LV</text>
+        </svg>
+        <button class="hotspot" style="left:50%; top:8%;" data-id="lungs" aria-label="Lungs">+</button>
+        <button class="hotspot" style="left:50%; top:91%;" data-id="body" aria-label="Rest of the body">+</button>
+        <button class="hotspot" style="left:41%; top:44%;" data-id="ra" aria-label="Right Atrium">+</button>
+        <button class="hotspot" style="left:59%; top:44%;" data-id="la" aria-label="Left Atrium">+</button>
+        <button class="hotspot" style="left:41%; top:56%;" data-id="rv" aria-label="Right Ventricle">+</button>
+        <button class="hotspot" style="left:59%; top:56%;" data-id="lv" aria-label="Left Ventricle">+</button>
+        <button class="hotspot" style="left:11%; top:31%;" data-id="pulmArtery" aria-label="Pulmonary Artery">+</button>
+        <button class="hotspot" style="left:90%; top:26%;" data-id="pulmVein" aria-label="Pulmonary Vein">+</button>
+        <button class="hotspot" style="left:8%; top:67%;" data-id="venaCava" aria-label="Vena Cava">+</button>
+        <button class="hotspot" style="left:92%; top:73%;" data-id="aorta" aria-label="Aorta">+</button>
+      </div>
+
+      <div class="info-panel" id="infoPanel">
+        <p class="placeholder">Tap any + marker on the diagram to learn what that part does.</p>
+      </div>
+    </div>
+
+    <p class="intro" style="margin-top:44px;">Blood itself is also made of smaller parts. Tap each card to flip it and decompose the blood into its four components.</p>
+    <div class="flip-grid" id="flipGrid"></div>
+  </div>
+</section>
+
+<!-- MODULE 2: ALGORITHM -->
+<section class="module module-algo" id="algorithm">
+  <div class="wrap">
+    <span class="eyebrow">Pillar 02 · Algorithms</span>
+    <h2>The double-circulation algorithm</h2>
+    <p class="intro">An algorithm is a precise, ordered sequence of steps — do this, then this, then this, in exactly that order, every time. Your blood follows one. There are actually <strong>two loops</strong> running back-to-back: the <span style="color:var(--venous-deep); font-weight:600;">Pulmonary Loop</span> (heart ↔ lungs) and the <span style="color:var(--arterial-deep); font-weight:600;">Systemic Loop</span> (heart ↔ body). Drag or tap the steps below into the correct order to run the program.</p>
+
+    <div class="loop-cols">
+      <div class="loop-col pulmonary">
+        <h4>Pulmonary Loop (heart ↔ lungs)</h4>
+        <div class="slot" data-loop="pulm" data-index="0"><span class="slot-num">1.</span><span class="slot-text">empty slot</span></div>
+        <div class="slot" data-loop="pulm" data-index="1"><span class="slot-num">2.</span><span class="slot-text">empty slot</span></div>
+        <div class="slot" data-loop="pulm" data-index="2"><span class="slot-num">3.</span><span class="slot-text">empty slot</span></div>
+        <div class="slot" data-loop="pulm" data-index="3"><span class="slot-num">4.</span><span class="slot-text">empty slot</span></div>
+      </div>
+      <div class="loop-col systemic">
+        <h4>Systemic Loop (heart ↔ body)</h4>
+        <div class="slot" data-loop="sys" data-index="0"><span class="slot-num">1.</span><span class="slot-text">empty slot</span></div>
+        <div class="slot" data-loop="sys" data-index="1"><span class="slot-num">2.</span><span class="slot-text">empty slot</span></div>
+        <div class="slot" data-loop="sys" data-index="2"><span class="slot-num">3.</span><span class="slot-text">empty slot</span></div>
+        <div class="slot" data-loop="sys" data-index="3"><span class="slot-num">4.</span><span class="slot-text">empty slot</span></div>
+      </div>
+    </div>
+
+    <div class="chip-pool" id="chipPool"></div>
+
+    <div class="loop-actions">
+      <button class="btn" id="checkLoopBtn">Check my algorithm</button>
+      <button class="btn" id="resetLoopBtn" style="background:var(--paper); color:var(--ink); border:1px solid var(--ink);">Reset</button>
+      <span class="feedback-msg notyet" id="loopFeedback">Place all 8 steps, then check your work.</span>
+    </div>
+
+    <div class="code-block" id="codeBlock">
+      <span class="c1">LOOP</span> forever {<br>
+      &nbsp;&nbsp;<span class="c2">pulmonaryCircuit()</span>; <span style="color:#8B93AE;">// heart → lungs → heart</span><br>
+      &nbsp;&nbsp;<span class="c3">systemicCircuit()</span>; <span style="color:#8B93AE;">// heart → body → heart</span><br>
+      } <span class="cur"></span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 3: PATTERN RECOGNITION -->
+<section class="module module-pattern" id="pattern">
+  <div class="wrap">
+    <span class="eyebrow">Pillar 03 · Pattern Recognition</span>
+    <h2>Reading the rhythm</h2>
+    <p class="intro">A pulse is data — beats plotted over time. Doctors read heart-rate patterns the same way a computer reads a data set: comparing values, spotting trends, and noticing when something looks different from usual. Try the three presets below and compare what changes.</p>
+
+    <div class="preset-row" id="presetRow">
+      <button class="preset-btn active" data-preset="resting">Resting</button>
+      <button class="preset-btn" data-preset="exercise">After Exercise</button>
+      <button class="preset-btn" data-preset="fever">Fever</button>
+    </div>
+
+    <div class="wave-card">
+      <svg viewBox="0 0 600 120" aria-hidden="true">
+        <path class="wave-path" id="wavePath" d=""/>
+      </svg>
+      <div class="wave-meta">
+        <div><span class="wave-bpm" id="waveBpm">78</span> <span class="wave-label">BPM</span></div>
+        <div class="wave-label" id="waveState">Resting rate</div>
+      </div>
+    </div>
+
+    <div class="pattern-quiz">
+      <p class="q">Which pattern shows the fastest heart rate?</p>
+      <div class="opt-row" id="patternQuizOpts">
+        <button class="opt-btn" data-val="resting">Resting</button>
+        <button class="opt-btn" data-val="exercise">After Exercise</button>
+        <button class="opt-btn" data-val="fever">Fever</button>
+      </div>
+      <p class="pq-feedback" id="pqFeedback"></p>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 4: ABSTRACTION -->
+<section class="module module-abstract" id="abstraction">
+  <div class="wrap">
+    <span class="eyebrow">Pillar 04 · Abstraction</span>
+    <h2>Simplifying the map</h2>
+    <p class="intro">Every diagram on this page has already been an <em>abstraction</em> — real blood vessels don't look like clean curved pipes, and a real map of your vessels would need over 60,000 miles of lines to draw. Abstraction means keeping only the details that matter for the task, and hiding the rest.</p>
+
+    <div class="abstract-layout">
+      <div class="subway-note">
+        <h3 style="font-size:1.05rem;">A subway map does this too</h3>
+        <p style="font-size:.9rem; color:var(--ink-soft);">A subway map isn't geographically accurate — the curves are straightened and the distances are stretched. It hides everything except stations and lines, because that's all a rider actually needs.</p>
+        <svg viewBox="0 0 300 140" aria-hidden="true">
+          <line x1="20" y1="30" x2="280" y2="30" stroke="#1E7A72" stroke-width="4"/>
+          <line x1="20" y1="70" x2="280" y2="70" stroke="#B4392C" stroke-width="4"/>
+          <line x1="90" y1="15" x2="90" y2="110" stroke="#DB9A34" stroke-width="4"/>
+          <line x1="200" y1="15" x2="200" y2="110" stroke="#16213E" stroke-width="4"/>
+          <line x1="20" y1="110" x2="280" y2="110" stroke="#1E7A72" stroke-width="4" opacity=".55"/>
+          <g fill="#FFFDF7" stroke="#16213E" stroke-width="2">
+            <circle cx="90" cy="30" r="6"/><circle cx="200" cy="30" r="6"/>
+            <circle cx="90" cy="70" r="6"/><circle cx="200" cy="70" r="6"/>
+            <circle cx="90" cy="110" r="6"/><circle cx="200" cy="110" r="6"/>
+          </g>
+        </svg>
+        <div class="toggle-row">
+          <button class="switch" id="absToggle" aria-pressed="false" aria-label="Toggle detailed or simple view"><span class="knob"></span></button>
+          <span class="toggle-label" id="toggleLabel">DETAILED VIEW</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="abs-diagram-wrap">
+          <svg id="detailedAbsSvg" viewBox="0 0 400 300" aria-hidden="true">
+            <rect class="organ-box" x="90" y="10" width="220" height="45" rx="10"/>
+            <text class="svg-label" x="200" y="37">LUNGS</text>
+            <text class="svg-label-sm" x="200" y="48">~300 million alveoli</text>
+            <rect class="organ-box" x="90" y="245" width="220" height="45" rx="10"/>
+            <text class="svg-label" x="200" y="272">BODY</text>
+            <text class="svg-label-sm" x="200" y="283">billions of capillaries</text>
+            <path class="flow-venous flow-anim" d="M150,175 C60,175 60,55 120,55"/>
+            <path class="flow-arterial flow-anim" d="M280,55 C340,55 340,145 245,145"/>
+            <path class="flow-venous flow-anim" d="M120,245 C60,245 60,155 150,155"/>
+            <path class="flow-arterial flow-anim" d="M245,175 C340,175 340,245 280,245"/>
+            <rect class="chip-box" x="140" y="105" width="120" height="90" rx="14"/>
+            <rect class="chamber-ra" x="146" y="111" width="52" height="38" rx="6"/><text class="svg-label" style="font-size:10px;" x="172" y="134">RA</text>
+            <rect class="chamber-la" x="202" y="111" width="52" height="38" rx="6"/><text class="svg-label" style="font-size:10px;" x="228" y="134">LA</text>
+            <rect class="chamber-rv" x="146" y="151" width="52" height="40" rx="6"/><text class="svg-label" style="font-size:10px;" x="172" y="175">RV</text>
+            <rect class="chamber-lv" x="202" y="151" width="52" height="40" rx="6"/><text class="svg-label" style="font-size:10px;" x="228" y="175">LV</text>
+          </svg>
+          <svg id="simpleAbsSvg" viewBox="0 0 400 300" style="display:none;" aria-hidden="true">
+            <rect class="organ-box" x="140" y="10" width="120" height="40" rx="10"/>
+            <text class="svg-label" x="200" y="35">LUNGS</text>
+            <rect class="organ-box" x="140" y="250" width="120" height="40" rx="10"/>
+            <text class="svg-label" x="200" y="275">BODY</text>
+            <circle class="chip-box" cx="200" cy="150" r="46"/>
+            <text class="svg-label" x="200" y="155">HEART</text>
+            <path class="flow-venous flow-anim" d="M170,110 C90,110 90,60 150,45"/>
+            <path class="flow-arterial flow-anim" d="M250,45 C320,60 320,110 232,112"/>
+            <path class="flow-venous flow-anim" d="M150,255 C90,240 90,190 170,190"/>
+            <path class="flow-arterial flow-anim" d="M232,188 C320,190 320,240 250,255"/>
+            <text class="svg-label-sm" x="90" y="150" style="fill:#1E7A72; font-weight:600;">Pulmonary Loop</text>
+            <text class="svg-label-sm" x="315" y="150" style="fill:#B4392C; font-weight:600;">Systemic Loop</text>
+          </svg>
+        </div>
+        <p class="abs-caption" id="absCaption">Detailed view — every chamber and vessel labeled. Useful for a biology exam.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CHALLENGE -->
+<section class="module" id="challenge">
+  <div class="wrap">
+    <span class="eyebrow">Final Challenge</span>
+    <h2>Run the diagnostic</h2>
+    <p class="intro">Five questions. Some test what you learned about the circulatory system — some test the computational thinking skill you used to learn it.</p>
+    <div id="quizContainer"></div>
+    <div class="result-card" id="resultCard">
+      <div class="score" id="scoreText">0 / 5</div>
+      <p id="resultMsg">Keep exploring!</p>
+      <button class="btn-outline" id="restartQuizBtn">Restart challenge</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built for Grade 6 Science — Circulatory System × Computational Thinking
+  <span class="mono">DECOMPOSITION → ALGORITHM → PATTERN RECOGNITION → ABSTRACTION</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- NAV ---------- */
+  var navButtons = document.querySelectorAll('.pillar-nav button, .pillar-card');
+  navButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-target');
+      var el = document.getElementById(id);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+  var sections = ['decomposition','algorithm','pattern','abstraction','challenge'].map(function(id){return document.getElementById(id);});
+  var navBtnsById = {};
+  document.querySelectorAll('.pillar-nav button').forEach(function(b){ navBtnsById[b.getAttribute('data-target')] = b; });
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          Object.values(navBtnsById).forEach(function(b){ b.classList.remove('active'); });
+          var match = navBtnsById[entry.target.id];
+          if(match) match.classList.add('active');
+        }
+      });
+    }, {rootMargin:'-40% 0px -50% 0px'});
+    sections.forEach(function(s){ if(s) obs.observe(s); });
+  }
+
+  /* ---------- MODULE 1: INFO DATA ---------- */
+  var infoData = {
+    lungs:{h:'Organ', title:'Lungs', body:'Where gas exchange happens: incoming blood drops off carbon dioxide and picks up fresh oxygen through tiny air sacs called alveoli.'},
+    body:{h:'Destination', title:'Rest of the Body', body:'Every organ and muscle needs a constant oxygen delivery. Blood drops off oxygen and nutrients here, then picks up carbon dioxide and waste to carry away.'},
+    ra:{h:'Chamber', title:'Right Atrium', body:'Receives deoxygenated (oxygen-poor) blood arriving from the body through the vena cava, then passes it down to the right ventricle.'},
+    rv:{h:'Chamber', title:'Right Ventricle', body:'Pumps deoxygenated blood out through the pulmonary artery toward the lungs, so it can pick up fresh oxygen.'},
+    la:{h:'Chamber', title:'Left Atrium', body:'Receives freshly oxygenated blood arriving from the lungs through the pulmonary vein, then passes it down to the left ventricle.'},
+    lv:{h:'Chamber', title:'Left Ventricle', body:'Has the thickest, most muscular wall of all four chambers — it pumps oxygenated blood all the way around the body through the aorta.'},
+    pulmArtery:{h:'Vessel', title:'Pulmonary Artery', body:'The only artery in the body that carries deoxygenated blood — it runs from the right ventricle to the lungs.'},
+    pulmVein:{h:'Vessel', title:'Pulmonary Vein', body:'The only vein in the body that carries oxygenated blood — it runs from the lungs back to the left atrium.'},
+    venaCava:{h:'Vessel', title:'Vena Cava', body:'The body\'s largest vein. It collects deoxygenated blood from the whole body and empties it into the right atrium.'},
+    aorta:{h:'Vessel', title:'Aorta', body:'The body\'s largest artery. It carries oxygenated blood out of the left ventricle to every part of the body.'}
+  };
+  var infoPanel = document.getElementById('infoPanel');
+  document.querySelectorAll('.hotspot').forEach(function(hs){
+    hs.addEventListener('click', function(){
+      document.querySelectorAll('.hotspot').forEach(function(h){ h.classList.remove('active'); });
+      hs.classList.add('active');
+      var d = infoData[hs.getAttribute('data-id')];
+      if(!d) return;
+      infoPanel.innerHTML = '<h4>'+d.h+'</h4><div class="title">'+d.title+'</div><p>'+d.body+'</p>';
+    });
+  });
+
+  /* ---------- MODULE 1: FLIP CARDS ---------- */
+  var bloodParts = [
+    {name:'Red Blood Cells', tag:'~45% of blood', swatch:'#B4392C', back:'Contain hemoglobin, a protein that grabs onto oxygen and carries it to every cell. They have no nucleus and are shaped like tiny discs.'},
+    {name:'White Blood Cells', tag:'the defenders', swatch:'#EDE4CE', back:'Part of your immune system — they hunt down and destroy bacteria, viruses, and other invaders. Larger than red blood cells, but far fewer in number.'},
+    {name:'Platelets', tag:'the menders', swatch:'#DB9A34', back:'Tiny cell fragments that clump together at a cut or wound to form a clot and stop bleeding.'},
+    {name:'Plasma', tag:'~55% of blood', swatch:'#C6DFDA', back:'The pale yellow liquid that carries everything else — cells, nutrients, hormones, and waste — around the bloodstream.'}
+  ];
+  var flipGrid = document.getElementById('flipGrid');
+  bloodParts.forEach(function(part){
+    var card = document.createElement('div');
+    card.className = 'flip-card';
+    card.innerHTML = '<button aria-label="Flip card: '+part.name+'">'+
+      '<div class="flip-inner">'+
+        '<div class="flip-face flip-front"><div class="fc-swatch" style="background:'+part.swatch+'"></div><div class="fc-tag">'+part.tag+'</div><div class="fc-name">'+part.name+'</div></div>'+
+        '<div class="flip-face flip-back">'+part.back+'</div>'+
+      '</div></button>';
+    card.querySelector('button').addEventListener('click', function(){
+      card.classList.toggle('flipped');
+    });
+    flipGrid.appendChild(card);
+  });
+
+  /* ---------- MODULE 2: LOOP BUILDER ---------- */
+  var pulmSteps = [
+    {id:'p0', order:0, loop:'pulm', text:'Right ventricle pumps deoxygenated blood into the pulmonary artery.'},
+    {id:'p1', order:1, loop:'pulm', text:'Blood reaches the lungs, releases carbon dioxide, and picks up oxygen.'},
+    {id:'p2', order:2, loop:'pulm', text:'Oxygen-rich blood returns to the heart through the pulmonary vein.'},
+    {id:'p3', order:3, loop:'pulm', text:'Blood enters the left atrium.'}
+  ];
+  var sysSteps = [
+    {id:'s0', order:0, loop:'sys', text:'Left ventricle pumps oxygenated blood into the aorta.'},
+    {id:'s1', order:1, loop:'sys', text:'Blood travels through arteries and capillaries, delivering oxygen to body cells.'},
+    {id:'s2', order:2, loop:'sys', text:'Deoxygenated blood returns through veins to the vena cava.'},
+    {id:'s3', order:3, loop:'sys', text:'Blood enters the right atrium.'}
+  ];
+  var allSteps = pulmSteps.concat(sysSteps);
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  var chipPool = document.getElementById('chipPool');
+  var selectedChip = null;
+
+  function renderChip(step){
+    var chip = document.createElement('button');
+    chip.className = 'step-chip';
+    chip.dataset.id = step.id;
+    chip.dataset.loop = step.loop;
+    chip.dataset.order = step.order;
+    chip.textContent = step.text;
+    chip.addEventListener('click', function(){ onChipClick(chip); });
+    return chip;
+  }
+  shuffle(allSteps).forEach(function(step){ chipPool.appendChild(renderChip(step)); });
+
+  function onChipClick(chip){
+    if(selectedChip === chip){
+      chip.classList.remove('selected');
+      selectedChip = null;
+      return;
+    }
+    document.querySelectorAll('.step-chip.selected').forEach(function(c){ c.classList.remove('selected'); });
+    chip.classList.add('selected');
+    selectedChip = chip;
+  }
+
+  document.querySelectorAll('.slot').forEach(function(slot){
+    slot.addEventListener('click', function(){
+      if(slot.classList.contains('filled')){
+        var chipId = slot.dataset.chipId;
+        var chip = document.querySelector('.step-chip[data-id="'+chipId+'"]');
+        if(chip){ chip.hidden = false; }
+        slot.classList.remove('filled','correct','wrong');
+        slot.removeAttribute('data-chip-id');
+        slot.querySelector('.slot-text').textContent = 'empty slot';
+        return;
+      }
+      if(!selectedChip) return;
+      if(selectedChip.dataset.loop !== slot.dataset.loop) return;
+      slot.classList.add('filled');
+      slot.dataset.chipId = selectedChip.dataset.id;
+      slot.querySelector('.slot-text').textContent = selectedChip.textContent;
+      selectedChip.hidden = true;
+      selectedChip.classList.remove('selected');
+      selectedChip = null;
+    });
+  });
+
+  var loopFeedback = document.getElementById('loopFeedback');
+  var codeBlock = document.getElementById('codeBlock');
+
+  document.getElementById('checkLoopBtn').addEventListener('click', function(){
+    var slots = document.querySelectorAll('.slot');
+    var allFilled = true, allCorrect = true;
+    slots.forEach(function(slot){
+      slot.classList.remove('correct','wrong');
+      if(!slot.classList.contains('filled')){ allFilled = false; return; }
+      var chip = document.querySelector('.step-chip[data-id="'+slot.dataset.chipId+'"]');
+      var isRight = chip && chip.dataset.order === slot.dataset.index;
+      slot.classList.add(isRight ? 'correct' : 'wrong');
+      if(!isRight) allCorrect = false;
+    });
+    if(!allFilled){
+      loopFeedback.textContent = 'Place all 8 steps first, then check your work.';
+      loopFeedback.className = 'feedback-msg notyet';
+      codeBlock.classList.remove('show');
+      return;
+    }
+    if(allCorrect){
+      loopFeedback.textContent = 'Algorithm correct! The loop runs forever.';
+      loopFeedback.className = 'feedback-msg ok';
+      codeBlock.classList.add('show');
+    } else {
+      loopFeedback.textContent = 'Not quite — check the red slots and try again.';
+      loopFeedback.className = 'feedback-msg notyet';
+      codeBlock.classList.remove('show');
+    }
+  });
+
+  document.getElementById('resetLoopBtn').addEventListener('click', function(){
+    document.querySelectorAll('.slot').forEach(function(slot){
+      slot.classList.remove('filled','correct','wrong');
+      slot.removeAttribute('data-chip-id');
+      slot.querySelector('.slot-text').textContent = 'empty slot';
+    });
+    document.querySelectorAll('.step-chip').forEach(function(c){ c.hidden = false; c.classList.remove('selected'); });
+    selectedChip = null;
+    loopFeedback.textContent = 'Place all 8 steps, then check your work.';
+    loopFeedback.className = 'feedback-msg notyet';
+    codeBlock.classList.remove('show');
+  });
+
+  /* ---------- MODULE 3: PATTERN WAVEFORM ---------- */
+  function buildWave(spacing, jitterAmt){
+    var d = 'M0,60 ';
+    var x = 0;
+    while(x < 600){
+      var j = jitterAmt ? (Math.random()*jitterAmt - jitterAmt/2) : 0;
+      var s = Math.max(30, spacing + j);
+      d += 'L'+(x+s*0.55)+',60 L'+(x+s*0.66)+',34 L'+(x+s*0.74)+',88 L'+(x+s*0.82)+',12 L'+(x+s*0.92)+',66 L'+(x+s)+',60 ';
+      x += s;
+    }
+    return d;
+  }
+  var presetData = {
+    resting:{spacing:112, jitter:0, bpm:78, label:'Resting rate', dur:'1.1s'},
+    exercise:{spacing:52, jitter:0, bpm:145, label:'Elevated — after exercise', dur:'.5s'},
+    fever:{spacing:78, jitter:20, bpm:110, label:'Elevated — fever', dur:'.75s'}
+  };
+  var wavePath = document.getElementById('wavePath');
+  var waveBpm = document.getElementById('waveBpm');
+  var waveState = document.getElementById('waveState');
+  function setPreset(key){
+    var p = presetData[key];
+    wavePath.setAttribute('d', buildWave(p.spacing, p.jitter));
+    waveBpm.textContent = p.bpm;
+    waveState.textContent = p.label;
+    document.querySelectorAll('.preset-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.preset === key);
+    });
+  }
+  document.querySelectorAll('.preset-btn').forEach(function(b){
+    b.addEventListener('click', function(){ setPreset(b.dataset.preset); });
+  });
+  setPreset('resting');
+
+  var pqFeedback = document.getElementById('pqFeedback');
+  document.querySelectorAll('#patternQuizOpts .opt-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#patternQuizOpts .opt-btn').forEach(function(o){ o.classList.remove('correct','incorrect'); });
+      if(b.dataset.val === 'exercise'){
+        b.classList.add('correct');
+        pqFeedback.textContent = 'Correct! During exercise your muscles need more oxygen, so your heart pumps faster. You just used pattern recognition — comparing data to find what changed.';
+        pqFeedback.style.color = 'var(--success)';
+      } else {
+        b.classList.add('incorrect');
+        pqFeedback.textContent = 'Not quite — compare the BPM numbers above each preset and try the highest one.';
+        pqFeedback.style.color = 'var(--arterial-deep)';
+      }
+    });
+  });
+
+  /* ---------- MODULE 4: ABSTRACTION TOGGLE ---------- */
+  var absToggle = document.getElementById('absToggle');
+  var toggleLabel = document.getElementById('toggleLabel');
+  var detailedSvg = document.getElementById('detailedAbsSvg');
+  var simpleSvg = document.getElementById('simpleAbsSvg');
+  var absCaption = document.getElementById('absCaption');
+  absToggle.addEventListener('click', function(){
+    var isOn = absToggle.classList.toggle('on');
+    absToggle.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+    toggleLabel.textContent = isOn ? 'SIMPLE MAP VIEW' : 'DETAILED VIEW';
+    detailedSvg.style.display = isOn ? 'none' : 'block';
+    simpleSvg.style.display = isOn ? 'block' : 'none';
+    absCaption.textContent = isOn
+      ? 'Simple map — only the two loops and their direction. Useful for explaining the big idea in ten seconds.'
+      : 'Detailed view — every chamber and vessel labeled. Useful for a biology exam.';
+  });
+
+  /* ---------- FINAL QUIZ ---------- */
+  var quizQuestions = [
+    {q:'You separated the circulatory system into the heart, vessels, and blood before studying each one. Which CT skill did you use?', opts:['Abstraction','Decomposition','Pattern Recognition'], correct:1},
+    {q:'Which chamber pumps oxygen-rich blood out to the whole body?', opts:['Right atrium','Right ventricle','Left ventricle'], correct:2},
+    {q:'What molecule inside red blood cells actually carries the oxygen?', opts:['Plasma','Hemoglobin','Platelets'], correct:1},
+    {q:'In the pulmonary loop, blood travels to the lungs to do what?', opts:['Pick up oxygen and release carbon dioxide','Pick up nutrients','Clot and heal'], correct:0},
+    {q:'A simplified two-loop diagram instead of a fully detailed one is an example of which CT skill?', opts:['Algorithm','Abstraction','Decomposition'], correct:1}
+  ];
+  var quizContainer = document.getElementById('quizContainer');
+  var userAnswers = new Array(quizQuestions.length).fill(null);
+
+  function renderQuiz(){
+    quizContainer.innerHTML = '';
+    userAnswers = new Array(quizQuestions.length).fill(null);
+    quizQuestions.forEach(function(item, qi){
+      var card = document.createElement('div');
+      card.className = 'quiz-card';
+      var qEl = document.createElement('div');
+      qEl.className = 'quiz-q';
+      qEl.innerHTML = '<span class="quiz-num">Q'+(qi+1)+'</span>'+item.q;
+      card.appendChild(qEl);
+      var optsWrap = document.createElement('div');
+      optsWrap.className = 'quiz-opts';
+      item.opts.forEach(function(optText, oi){
+        var optBtn = document.createElement('button');
+        optBtn.className = 'quiz-opt';
+        optBtn.textContent = optText;
+        optBtn.addEventListener('click', function(){
+          userAnswers[qi] = oi;
+          optsWrap.querySelectorAll('.quiz-opt').forEach(function(o){ o.classList.remove('selected'); });
+          optBtn.classList.add('selected');
+        });
+        optsWrap.appendChild(optBtn);
+      });
+      card.appendChild(optsWrap);
+      quizContainer.appendChild(card);
+    });
+    var submitBtn = document.createElement('button');
+    submitBtn.className = 'btn';
+    submitBtn.style.marginTop = '8px';
+    submitBtn.textContent = 'Submit answers';
+    submitBtn.addEventListener('click', submitQuiz);
+    quizContainer.appendChild(submitBtn);
+    document.getElementById('resultCard').classList.remove('show');
+  }
+
+  function submitQuiz(){
+    var allAnswered = userAnswers.every(function(a){ return a !== null; });
+    if(!allAnswered){
+      alert('Please answer every question before submitting.');
+      return;
+    }
+    var score = 0;
+    var cards = quizContainer.querySelectorAll('.quiz-card');
+    cards.forEach(function(card, qi){
+      var opts = card.querySelectorAll('.quiz-opt');
+      opts.forEach(function(o){ o.disabled = true; });
+      var correctIdx = quizQuestions[qi].correct;
+      opts[correctIdx].classList.add('correct');
+      if(userAnswers[qi] === correctIdx){
+        score++;
+      } else {
+        opts[userAnswers[qi]].classList.add('incorrect');
+      }
+    });
+    var submitBtn = quizContainer.querySelector('.btn');
+    if(submitBtn) submitBtn.remove();
+
+    var resultCard = document.getElementById('resultCard');
+    document.getElementById('scoreText').textContent = score + ' / ' + quizQuestions.length;
+    var msg;
+    if(score === quizQuestions.length) msg = 'Perfect score! You can decompose, sequence, spot patterns, and abstract like a real computational thinker.';
+    else if(score >= 3) msg = 'Great work — you have a solid grip on both the circulatory system and computational thinking.';
+    else msg = 'Good try. Scroll back through the four pillars above and give it another go.';
+    document.getElementById('resultMsg').textContent = msg;
+    resultCard.classList.add('show');
+    resultCard.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+
+  document.getElementById('restartQuizBtn').addEventListener('click', renderQuiz);
+  renderQuiz();
+
+})();
+</script>
+</body>
+</html>
